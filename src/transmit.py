@@ -1,21 +1,16 @@
 import time
 
 import espnow
-import neopixel
-import network
-from machine import Pin
 
+import wifi
 from config import COLORS, NP_PIN, RECIEVERS, np, set_color, sig
 from device import DEVICE
 
+sta, ap = wifi.reset(sta=True, ap=False, channel=1)  # STA on, AP off, channel=1
 espn : espnow.ESPNow|None = None
 
 def init():
     global espn
-    # Initialize Wi-Fi in station mode
-    sta = network.WLAN(network.STA_IF)
-    sta.active(True)
-    sta.disconnect()
 
     # Print the MAC address
     mac = sta.config('mac')
@@ -50,7 +45,10 @@ def send_burst(receivers:list[bytes] = RECIEVERS):
         raise ValueError("please init espnow before using")        
     for mac in receivers:
         for message in ["ORANGE","GREEN", "BLUE", "PURPLE"]:
-            espn.send(mac, message, False) # No Wait
+            try:
+                espn.send(mac, message, False) # No Wait
+            except Exception as e:
+                print(f"Error sending burst message to {mac}: {e}")
 
 
 
@@ -60,14 +58,17 @@ def send_color_message(message:str, receivers:list[bytes] = RECIEVERS):
     for mac in receivers:
         if sig: 
             sig(1)
-        if espn.send(mac, message, True): # Wait for acknowledgment
-            if sig: 
-                sig(0)
-            print(f"Sent: {message}")
-            set_color(message)
-        else:
-            if sig:
-                sig(0)
-            print("Failed to send message to " + ''.join(['\\x%02x' % b for b in mac]))
-            set_color("RED")
+        try:
+            if espn.send(mac, message, True): # Wait for acknowledgment
+                if sig: 
+                    sig(0)
+                print(f"Sent: {message}")
+                set_color(message)
+            else:
+                if sig:
+                    sig(0)
+                print("Failed to send message to " + ''.join(['\\x%02x' % b for b in mac]))
+                set_color("RED")
+        except Exception as e:
+            print(f"Error sending color message to {mac}: {e}")
 

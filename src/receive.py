@@ -1,7 +1,6 @@
 import espnow
-import network
-from machine import Pin
 
+import wifi
 from config import COLORS, NP_PIN, np, set_color, sig
 from device import DEVICE, get_device_name
 from net_id import MAC_ADDRESS
@@ -9,8 +8,8 @@ from net_id import MAC_ADDRESS
 if not np:
     print("Neopixel not available")
 
-# Initialize Wi-Fi in station mode
-sta = network.WLAN(network.STA_IF)
+# Initialize Wi-Fi 
+sta, ap = wifi.reset(sta=False, ap=False, channel=1)  # STA off, AP off, channel=1
 espn : espnow.ESPNow|None = None
 
 
