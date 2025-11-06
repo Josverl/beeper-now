@@ -1,7 +1,7 @@
 import neopixel
 from machine import Pin, unique_id
 
-from device import DEVICE
+from device import ALL_DEVICES, DEVICE
 
 # Color dictionary mapping color names to RGB tuples
 COLORS = {
@@ -17,8 +17,7 @@ COLORS = {
 MAC_BROADCAST = b'\xff\xff\xff\xff\xff\xff'
 
 RECIEVERS = [
-    # MAC_C3_MINI,
-    # MAC_M5STACK_FIRE,
+    ALL_DEVICES["M5STACK-FIRE"],
     MAC_BROADCAST,
 ]
 
@@ -34,7 +33,7 @@ if DEVICE == "M5STACK-FIRE":
 elif DEVICE == "C3-MINI":
      NP_PIN = 7
 
-elif DEVICE in {"AI-C3","C3_SUPER_MINI","ESP8266"}:
+elif DEVICE in {"AI-C3","C3-SUPER-MINI","ESP8266"}:
      NP_PIN = 8
 
 elif DEVICE == "M5STACK-GREY":
@@ -60,7 +59,7 @@ def set_color(color:tuple|str):
             else:
                 print(f"Warning: Unknown color name '{color}', using OFF")
                 color = COLORS["OFF"]
-        np[0] = color
+        np.fill(color)
         np.write()
 
 

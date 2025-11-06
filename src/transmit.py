@@ -10,13 +10,6 @@ from device import DEVICE
 
 espn : espnow.ESPNow|None = None
 
-
-
-if not np:
-    print("Neopixel not available")
-
-
-
 def init():
     global espn
     # Initialize Wi-Fi in station mode
@@ -41,25 +34,40 @@ def transmit(receivers:list[bytes] = RECIEVERS,delay:int=5):
     for mac in receivers:
         print("Adding peer: " + ''.join(['\\x%02x' % b for b in mac]))
         espn.add_peer(mac)
+
+    # initial burst 
+    send_burst()
     # Send messages in a loop
     while True:
         for color in ["ORANGE","GREEN", "BLUE", "PURPLE"]:
-            message = color
-            for mac in receivers:
-                if sig: 
-                    sig(1)
-                if espn.send(mac, message, True): # Wait for acknowledgment
-                    if sig: 
-                        sig(0)
-                    print(f"Sent: {message}")
-                    set_color(message)
-                else:
-                    if sig:
-                        sig(0)
-                    print("Failed to send message to " + ''.join(['\\x%02x' % b for b in mac]))
-                    set_color("RED")
-
+            send_color_message(color, receivers)
             time.sleep(delay/2)
             set_color("OFF")
             time.sleep(delay/2)
+
+def send_burst(receivers:list[bytes] = RECIEVERS):
+    if not espn:
+        raise ValueError("please init espnow before using")        
+    for mac in receivers:
+        for message in ["ORANGE","GREEN", "BLUE", "PURPLE"]:
+            espn.send(mac, message, False) # No Wait
+
+
+
+def send_color_message(message:str, receivers:list[bytes] = RECIEVERS):
+    if not espn:
+        raise ValueError("please init espnow before using")    
+    for mac in receivers:
+        if sig: 
+            sig(1)
+        if espn.send(mac, message, True): # Wait for acknowledgment
+            if sig: 
+                sig(0)
+            print(f"Sent: {message}")
+            set_color(message)
+        else:
+            if sig:
+                sig(0)
+            print("Failed to send message to " + ''.join(['\\x%02x' % b for b in mac]))
+            set_color("RED")
 

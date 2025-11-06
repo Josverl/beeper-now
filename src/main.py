@@ -8,7 +8,7 @@ for i in range(5):
     print(f"Starting in {5 - i} seconds...")
     time.sleep(1)
 
-if DEVICE in ["M5STACK-GREY", "C3_SUPER_MINI"]:
+if DEVICE in ["M5STACK-GREY", "C3-SUPER-MINI"]:
     from transmit import init, transmit
     init()
     transmit()

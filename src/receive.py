@@ -1,10 +1,9 @@
 import espnow
-import neopixel
 import network
 from machine import Pin
 
 from config import COLORS, NP_PIN, np, set_color, sig
-from device import DEVICE
+from device import DEVICE, get_device_name
 from net_id import MAC_ADDRESS
 
 if not np:
@@ -39,7 +38,7 @@ def listen():
                 sig(1)
             message = msg.decode().strip()
             if host:
-                print(f"Received from {host.hex()}: {message}")
+                print(f"Received from {get_device_name(host)}[{host.hex()}]: {message}")
             
             # Use string color names directly
             if message in COLORS:
