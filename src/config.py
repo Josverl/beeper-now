@@ -39,7 +39,6 @@ elif DEVICE in {"AI-C3","C3-SUPER-MINI","ESP8266"}:
 elif DEVICE == "M5STACK-GREY":
     NP_PIN = None
 
-
 if SIG_PIN:
     sig = Pin(SIG_PIN, Pin.OUT)
 else:
@@ -49,6 +48,9 @@ if NP_PIN:
      np = neopixel.NeoPixel(Pin(NP_PIN), NP_LEN)
 else:
     np = None
+
+# BOOT button is usually on GPIO9 on ESP32
+boot_btn = Pin(9, Pin.IN, Pin.PULL_UP)
 
 def set_color(color:tuple|str):
     if np:
