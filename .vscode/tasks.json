@@ -1,0 +1,31 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "mpremote mount dist",
+            "type": "shell",
+            "command": "mpremote mount . repl --inject-code 'import main'",
+            "options": {
+                "cwd": "${workspaceFolder}/dist"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        // {
+        //     "label": "mpy-cross",
+        //     "type": "shell",
+        //     "command": "mpy-cross ${file} -o ./dist/${relativeFileDirname}/${fileBasenameNoExtension}.mpy",
+        //     "options": {
+        //         "cwd": "${workspaceFolder}"
+        //     },
+        //     "group": {
+        //         "kind": "build",
+        //         "isDefault": true
+        //     }
+        // }
+    ]
+}
