@@ -40,9 +40,9 @@ elif DEVICE == "M5STACK-GREY":
     NP_PIN = None
 
 if SIG_PIN:
-    sig = Pin(SIG_PIN, Pin.OUT)
+    signal_led = Pin(SIG_PIN, Pin.OUT)
 else:
-    sig = None
+    signal_led = None
 
 if NP_PIN:
      np = neopixel.NeoPixel(Pin(NP_PIN), NP_LEN)

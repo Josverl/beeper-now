@@ -3,7 +3,7 @@ import time
 import espnow
 
 import wifi
-from config import COLORS, NP_PIN, RECIEVERS, np, set_color, sig
+from config import COLORS, NP_PIN, RECIEVERS, np, set_color, signal_led
 from device import DEVICE
 
 sta, ap = wifi.reset(sta=True, ap=False, channel=1)  # STA on, AP off, channel=1
@@ -56,17 +56,17 @@ def send_color_message(message:str, receivers:list[bytes] = RECIEVERS):
     if not espn:
         raise ValueError("please init espnow before using")    
     for mac in receivers:
-        if sig: 
-            sig(1)
+        if signal_led: 
+            signal_led(1)
         try:
             if espn.send(mac, message, True): # Wait for acknowledgment
-                if sig: 
-                    sig(0)
+                if signal_led: 
+                    signal_led(0)
                 print(f"Sent: {message}")
                 set_color(message)
             else:
-                if sig:
-                    sig(0)
+                if signal_led:
+                    signal_led(0)
                 print("Failed to send message to " + ''.join(['\\x%02x' % b for b in mac]))
                 set_color("RED")
         except Exception as e:

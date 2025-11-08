@@ -20,4 +20,27 @@
             // "cmd": "bash ${workspaceRoot}\\tools\\mpy-cross_dist.sh \"${file}\"",
         }		
     ],
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#01e3a5",
+        "activityBar.background": "#01e3a5",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#ca41fe",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "editorGroup.border": "#01e3a5",
+        "panel.border": "#01e3a5",
+        "sash.hoverBorder": "#01e3a5",
+        "statusBar.background": "#01b080",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#01e3a5",
+        "statusBarItem.remoteBackground": "#01b080",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "tab.activeBorder": "#01e3a5",
+        "titleBar.activeBackground": "#01b080",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#01b08099",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#01b080",
 }

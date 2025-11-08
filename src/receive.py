@@ -1,7 +1,7 @@
 import espnow
 
 import wifi
-from config import COLORS, NP_PIN, np, set_color, sig
+from config import COLORS, NP_PIN, np, set_color, signal_led
 from device import DEVICE, get_device_name
 from net_id import MAC_ADDRESS
 
@@ -29,12 +29,12 @@ def init():
 def listen():
     # Listen for incoming messages
     while True:
-        if sig:
-            sig(0)
+        if signal_led:
+            signal_led(0)
         host, msg = espn.recv()
         if msg:
-            if sig:
-                sig(1)
+            if signal_led:
+                signal_led(1)
             message = msg.decode().strip()
             if host:
                 print(f"Received from {get_device_name(host)}[{host.hex()}]: {message}")
