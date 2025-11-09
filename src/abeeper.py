@@ -12,7 +12,6 @@ Features:
 
 import asyncio
 import gc
-import time
 
 import aiorepl
 import esp32
@@ -21,6 +20,7 @@ from machine import Pin
 from primitives.switch import Switch
 
 from config import COLORS, NP_PIN, RECIEVERS, np, set_color, signal_led
+from inactivity import InactivityTimer
 
 
 def set_global_exception():
@@ -34,26 +34,14 @@ def set_global_exception():
     loop.set_exception_handler(handle_exception)
 
 
-# Global inactivity timer
-inactivity_timeout_ms = 2 * 60 * 1000  # 2 minutes in milliseconds
-last_activity_time = time.ticks_ms()
-
-
-def reset_activity_timer():
-    """Reset the inactivity timer - call this whenever there's activity"""
-    global last_activity_time
-    last_activity_time = time.ticks_ms()
-    print(f"Activity detected, timer reset at {last_activity_time}")
+# Create a single instance to be used throughout the module
+inactivity_timer = InactivityTimer()
 
 
 async def inactivity_monitor():
     """Monitor for inactivity and go to deep sleep after timeout"""
-    global last_activity_time
-
     while True:
-        current_time = time.ticks_ms()
-        elapsed = time.ticks_diff(current_time, last_activity_time)
-        remaining = inactivity_timeout_ms - elapsed
+        remaining = inactivity_timer.remaining_time_ms
 
         # Show countdown every 10 seconds when less than 1 minute remains
         if remaining <= 60_000 and remaining > 0:  # Less than 60 seconds left
@@ -66,7 +54,7 @@ async def inactivity_monitor():
                 set_color("OFF")
 
         # Check if we've exceeded the inactivity timeout
-        if elapsed >= inactivity_timeout_ms:
+        if inactivity_timer.is_timeout_reached:
             print("Inactivity timeout reached - preparing for deep sleep...")
             await prepare_for_sleep()
             # This function should not return
@@ -129,7 +117,7 @@ async def evt_pulse(event: asyncio.Event, kleur: str):
         await event.wait()
         e += 1
         # Reset activity timer whenever an event is triggered
-        reset_activity_timer()
+        inactivity_timer.reset()
         print(f"Event {event} triggered {e} times, pulsing {kleur}")
         set_color(kleur)
 
@@ -148,7 +136,7 @@ async def a_main():
     print("Starting switch event test with 2-minute inactivity timer...")
 
     # Initialize activity timer
-    reset_activity_timer()
+    inactivity_timer.reset()
 
     pin = Pin(5, Pin.IN, Pin.PULL_DOWN)
     sw = Switch(pin)
@@ -176,9 +164,8 @@ async def a_main():
             task.cancel()
 
 
-def do_beeper_button(timeout_seconds=30):
-    global inactivity_timeout_ms
-    inactivity_timeout_ms = timeout_seconds * 1000
+def do_beeper_button(timeout_seconds=20 * 60):  # Default 20 minutes
+    inactivity_timer.timeout_ms = timeout_seconds * 1000
     try:
         asyncio.run(a_main())
     except KeyboardInterrupt:
