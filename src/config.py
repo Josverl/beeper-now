@@ -66,4 +66,6 @@ def set_color(color: tuple | str):
         np.write()
 
 
+WIFI_CHANNEL = 1
+
 print(f"{DEVICE} Pin {NP_PIN}")

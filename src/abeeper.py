@@ -15,14 +15,23 @@ import gc
 
 import aiorepl
 import esp32
+import espnow
 import machine
 from machine import Pin
 from primitives.switch import Switch
 
-from config import COLORS, NP_PIN, RECIEVERS, np, set_color, signal_led
+import wifi
+from config import RECIEVERS, np, set_color
 from inactivity import InactivityTimer
+from transmit import (
+    deactivate_espnow,
+    init_espnow,
+    send_burst_async,
+    send_color_message_async,
+)
 
 
+# Global exception handler for asyncio
 def set_global_exception():
     def handle_exception(loop, context):
         import sys
@@ -103,6 +112,8 @@ async def prepare_for_sleep():
     print("Wake-up: Press reset or power cycle to wake")
 
     # Turn off all peripherals before sleep
+    deactivate_espnow()
+
     if np:
         set_color("OFF")
 
@@ -111,6 +122,7 @@ async def prepare_for_sleep():
 
 
 async def evt_pulse(event: asyncio.Event, kleur: str):
+    """Handle button events with ESPNow transmission"""
     e = 0
     while True:
         event.clear()
@@ -119,7 +131,21 @@ async def evt_pulse(event: asyncio.Event, kleur: str):
         # Reset activity timer whenever an event is triggered
         inactivity_timer.reset()
         print(f"Event {event} triggered {e} times, pulsing {kleur}")
+
+        # Set local color
         set_color(kleur)
+
+        # Send color message via ESPNow
+        success = await send_color_message_async(kleur)
+        if success:
+            print(f"ESPNow transmission successful for {kleur}")
+        else:
+            print(f"ESPNow transmission failed for {kleur}")
+            # Flash red briefly to indicate transmission failure
+            original_color = kleur
+            set_color("RED")
+            await asyncio.sleep_ms(200)
+            set_color(original_color)
 
 
 async def housekeeping():
@@ -133,7 +159,19 @@ async def housekeeping():
 # Test for the Switch class (events) with inactivity monitoring
 async def a_main():
     set_global_exception()  # Debug aid
-    print("Starting switch event test with 2-minute inactivity timer...")
+    print("Inactivity + ESPNow integration...")
+
+    # Initialize ESPNow
+    try:
+        init_espnow()
+        print("ESPNow initialized successfully")
+
+        # Send initial burst to announce presence
+        await send_burst_async()
+
+    except Exception as e:
+        print(f"ESPNow initialization failed: {e}")
+        print("Continuing without ESPNow functionality")
 
     # Initialize activity timer
     inactivity_timer.reset()
@@ -145,9 +183,10 @@ async def a_main():
     sw.close_func(None)
 
     tasks = []
-    # Add event pulse tasks
-    tasks.append(asyncio.create_task(evt_pulse(sw.close, "RED")))
-    tasks.append(asyncio.create_task(evt_pulse(sw.open, "GREEN")))
+    # Add butten event tasks: 
+    # - GREEN for button press/(closed), Off for button released (open)
+    tasks.append(asyncio.create_task(evt_pulse(sw.open, "GREEN")))  # Button press
+    tasks.append(asyncio.create_task(evt_pulse(sw.close, "OFF")))  # Button release
 
     # Add inactivity monitoring task
     tasks.append(asyncio.create_task(inactivity_monitor()))
@@ -165,6 +204,7 @@ async def a_main():
 
 
 def do_beeper_button(timeout_seconds=20 * 60):  # Default 20 minutes
+    init_espnow()
     inactivity_timer.timeout_ms = timeout_seconds * 1000
     try:
         asyncio.run(a_main())

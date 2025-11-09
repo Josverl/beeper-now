@@ -6,6 +6,7 @@ ALL_DEVICES = {
     "C3-AI": b"\x34\x85\x18\x02\x8c\xf8",
     "M5STACK-FIRE": b"\x84\x0d\x8e\x25\x98\xb4",
     "M5STACK-GREY": b"\x30\xae\xa4\x58\x37\x90",
+    "BROADCAST": b"\xff\xff\xff\xff\xff\xff",
 }
 """Device names mapping to MAC Addresses """
 
