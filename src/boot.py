@@ -1,5 +1,5 @@
 # boot.py
-# only show wake source 
+# only show wake source
 
 
 import machine
@@ -14,4 +14,4 @@ elif machine.reset_cause() == machine.WDT_RESET:
     set_color("YELLOW")
 else:
     print("Normale start")
-    set_color((5,5,5))
+    set_color((5, 5, 5))

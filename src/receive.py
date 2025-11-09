@@ -8,9 +8,9 @@ from net_id import MAC_ADDRESS
 if not np:
     print("Neopixel not available")
 
-# Initialize Wi-Fi 
+# Initialize Wi-Fi
 sta, ap = wifi.reset(sta=False, ap=False, channel=1)  # STA off, AP off, channel=1
-espn : espnow.ESPNow|None = None
+espn: espnow.ESPNow | None = None
 
 
 def init():
@@ -18,13 +18,17 @@ def init():
     set_color("YELLOW")
 
     # Print the MAC address
-    print(f"Receiver {DEVICE}: MAC address :" + ''.join(['\\x%02x' % b for b in MAC_ADDRESS]))
+    print(
+        f"Receiver {DEVICE}: MAC address :"
+        + "".join(["\\x%02x" % b for b in MAC_ADDRESS])
+    )
 
     sta.active(True)
     sta.disconnect()
     # Initialize ESP-NOW
     espn = espnow.ESPNow()
     espn.active(True)
+
 
 def listen():
     # Listen for incoming messages
@@ -38,7 +42,7 @@ def listen():
             message = msg.decode().strip()
             if host:
                 print(f"Received from {get_device_name(host)}[{host.hex()}]: {message}")
-            
+
             # Use string color names directly
             if message in COLORS:
                 set_color(message)

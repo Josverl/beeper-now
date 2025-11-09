@@ -132,7 +132,7 @@ async def task(g=None, prompt="--> "):
                             continue
                         if curs:
                             # move cursor to end of the line
-                            sys.stdout.write("\x1B[{}C".format(curs))
+                            sys.stdout.write("\x1b[{}C".format(curs))
                             curs = 0
                         sys.stdout.write("\n")
                         if cmd:
@@ -153,10 +153,12 @@ async def task(g=None, prompt="--> "):
                             if curs:
                                 cmd = "".join((cmd[: -curs - 1], cmd[-curs:]))
                                 sys.stdout.write(
-                                    "\x08\x1B[K"
+                                    "\x08\x1b[K"
                                 )  # move cursor back, erase to end of line
                                 sys.stdout.write(cmd[-curs:])  # redraw line
-                                sys.stdout.write("\x1B[{}D".format(curs))  # reset cursor location
+                                sys.stdout.write(
+                                    "\x1b[{}D".format(curs)
+                                )  # reset cursor location
                             else:
                                 cmd = cmd[:-1]
                                 sys.stdout.write("\x08 \x08")
@@ -183,7 +185,9 @@ async def task(g=None, prompt="--> "):
                         asyncio.new_event_loop()
                         return
                     elif c == CHAR_CTRL_E:
-                        sys.stdout.write("paste mode; Ctrl-C to cancel, Ctrl-D to finish\n===\n")
+                        sys.stdout.write(
+                            "paste mode; Ctrl-C to cancel, Ctrl-D to finish\n===\n"
+                        )
                         paste = True
                     elif c == 0x1B:
                         # Start of escape sequence.
@@ -207,21 +211,25 @@ async def task(g=None, prompt="--> "):
                         elif key == "[D":  # left
                             if curs < len(cmd) - 1:
                                 curs += 1
-                                sys.stdout.write("\x1B")
+                                sys.stdout.write("\x1b")
                                 sys.stdout.write(key)
                         elif key == "[C":  # right
                             if curs:
                                 curs -= 1
-                                sys.stdout.write("\x1B")
+                                sys.stdout.write("\x1b")
                                 sys.stdout.write(key)
                         elif key == "[H":  # home
                             pcurs = curs
                             curs = len(cmd)
-                            sys.stdout.write("\x1B[{}D".format(curs - pcurs))  # move cursor left
+                            sys.stdout.write(
+                                "\x1b[{}D".format(curs - pcurs)
+                            )  # move cursor left
                         elif key == "[F":  # end
                             pcurs = curs
                             curs = 0
-                            sys.stdout.write("\x1B[{}C".format(pcurs))  # move cursor right
+                            sys.stdout.write(
+                                "\x1b[{}C".format(pcurs)
+                            )  # move cursor right
                     else:
                         # sys.stdout.write("\\x")
                         # sys.stdout.write(hex(c))
@@ -231,7 +239,9 @@ async def task(g=None, prompt="--> "):
                         # inserting into middle of line
                         cmd = "".join((cmd[:-curs], b, cmd[-curs:]))
                         sys.stdout.write(cmd[-curs - 1 :])  # redraw line to end
-                        sys.stdout.write("\x1B[{}D".format(curs))  # reset cursor location
+                        sys.stdout.write(
+                            "\x1b[{}D".format(curs)
+                        )  # reset cursor location
                     else:
                         sys.stdout.write(b)
                         cmd += b

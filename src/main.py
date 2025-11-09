@@ -1,3 +1,3 @@
-from abeeper import test_sw_event
+from abeeper import do_beeper_button
 
-test_sw_event(timeout_seconds=15)
+do_beeper_button(timeout_seconds=15)

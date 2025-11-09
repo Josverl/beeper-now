@@ -121,7 +121,7 @@ def reset(
         disconnect()  # For ESP8266
         try:
             _sta.config(pm=pm)
-        except (ValueError):
+        except ValueError:
             pass
     try:
         wlan = _sta if sta else _ap if ap else None
@@ -153,7 +153,7 @@ def status():
             _sta.PM_NONE: "PM_NONE",
             _sta.PM_PERFORMANCE: "PM_PERFORMANCE",
             _sta.PM_POWERSAVE: "PM_POWERSAVE",
-            }
+        }
         print(", pm={:d} ({})".format(pm_mode, names[pm_mode]), end="")
     except (AttributeError, ValueError):
         print(", pm={}".format(pm_mode), end="")

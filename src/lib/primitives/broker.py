@@ -52,7 +52,9 @@ class Broker(dict):
             if (aa := (agent, args)) in self[topic]:
                 self[topic].remove(aa)
             elif Broker.Verbose:
-                print(f"Unsubscribe agent {aa} from topic {topic} fail: agent not subscribed.")
+                print(
+                    f"Unsubscribe agent {aa} from topic {topic} fail: agent not subscribed."
+                )
             if len(self[topic]) == 0:
                 del self[topic]
         elif Broker.Verbose:
@@ -77,8 +79,12 @@ class Broker(dict):
                 t = (topic, message, args)
                 try:
                     agent.put_nowait(t if args else t[:2])
-                except Exception:  # Queue discards current message. RingbufQueue discards oldest
-                    Broker.Verbose and print(f"Message lost topic {topic} message {message}")
+                except (
+                    Exception
+                ):  # Queue discards current message. RingbufQueue discards oldest
+                    Broker.Verbose and print(
+                        f"Message lost topic {topic} message {message}"
+                    )
                 continue
             # agent is function, method, coroutine or bound coroutine
             res = agent(topic, message, *args)

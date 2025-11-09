@@ -7,6 +7,7 @@ import asyncio
 from . import Delay_ms
 from . import RingbufQueue
 
+
 # An Event-like class that can wait on an iterable of Event-like instances.
 # .wait pauses until any passed event is set.
 class WaitAny:
@@ -74,7 +75,9 @@ class ELO_x:
         istask = isinstance(cr, asyncio.Task)  # Instantiated with a Task
         if istask and isinstance(self._task, asyncio.CancelledError):
             return  # Previously awaited and was cancelled/timed out
-        self._task = cr if istask else asyncio.create_task(cr(*self._args, **self._kwargs))
+        self._task = (
+            cr if istask else asyncio.create_task(cr(*self._args, **self._kwargs))
+        )
         try:
             await self._task
         except asyncio.CancelledError as e:
@@ -187,7 +190,9 @@ class EButton:
 
     def _rf(self):  # Button release
         self._ltim.stop()
-        if not self._supp or not self._dtim():  # If dtim running postpone release otherwise it
+        if (
+            not self._supp or not self._dtim()
+        ):  # If dtim running postpone release otherwise it
             self.release.set()  # is set before press
 
     async def _ltf(self):  # Long timeout

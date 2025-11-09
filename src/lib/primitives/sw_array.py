@@ -7,6 +7,7 @@ import asyncio
 from . import RingbufQueue
 from time import ticks_ms, ticks_diff
 
+
 # A crosspoint array of pushbuttons
 # Tuples/lists of pins. Rows are OUT, cols are IN
 class Keyboard(RingbufQueue):
@@ -17,7 +18,9 @@ class Keyboard(RingbufQueue):
         self._state = 0  # State of all keys as bitmap
         for opin in self.rowpins:  # Initialise output pins
             opin(1)
-        self._run = asyncio.create_task(self.scan(len(rowpins) * len(colpins), db_delay))
+        self._run = asyncio.create_task(
+            self.scan(len(rowpins) * len(colpins), db_delay)
+        )
 
     def __getitem__(self, scan_code):
         return bool(self._state & (1 << scan_code))
@@ -52,6 +55,7 @@ OPEN = const(2)
 LONG = const(4)
 DOUBLE = const(8)
 SUPPRESS = const(16)  # Disambiguate: see docs.
+
 
 # Entries in queue are (scan_code, event) where event is an OR of above constants.
 # rowpins/colpins are tuples/lists of pins. Rows are OUT, cols are IN.
@@ -147,7 +151,9 @@ class SwArray(RingbufQueue):
                             self._put(sc, CLOSE if cur & 1 else OPEN)
                         elif cur & 1:  # Closed
                             if not self._busy(sc, True):  # Currently not busy
-                                asyncio.create_task(self._defer(sc))  # Q is handled asynchronously
+                                asyncio.create_task(
+                                    self._defer(sc)
+                                )  # Q is handled asynchronously
                     changed >>= 1
                     cur >>= 1
             changed = curb ^ self._state  # Any new press or release

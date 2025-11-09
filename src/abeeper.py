@@ -132,18 +132,7 @@ async def evt_pulse(event: asyncio.Event, kleur: str):
         reset_activity_timer()
         print(f"Event {event} triggered {e} times, pulsing {kleur}")
         set_color(kleur)
-        # await asyncio.sleep_ms(500)
-        # set_color("OFF")
 
-
-
-# Quit test by connecting Pin 0 to ground
-async def killer(obj, gpio = 0):
-    pin = Pin(gpio, Pin.IN, Pin.PULL_UP)
-    while pin.value():
-        await asyncio.sleep_ms(50)
-    obj.deinit()
-    await asyncio.sleep_ms(0)
 
 async def housekeeping():
     """Periodic housekeeping tasks."""
@@ -151,9 +140,10 @@ async def housekeeping():
         await asyncio.sleep(10)
         gc.collect()
         gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
-        
+
+
 # Test for the Switch class (events) with inactivity monitoring
-async def amain():
+async def a_main():
     set_global_exception()  # Debug aid
     print("Starting switch event test with 2-minute inactivity timer...")
 
@@ -186,16 +176,15 @@ async def amain():
             task.cancel()
 
 
-def test_sw_event(timeout_seconds=30):
+def do_beeper_button(timeout_seconds=30):
     global inactivity_timeout_ms
     inactivity_timeout_ms = timeout_seconds * 1000
     try:
-        asyncio.run(amain())
+        asyncio.run(a_main())
     except KeyboardInterrupt:
         print("Interrupted")
     finally:
         asyncio.new_event_loop()
 
 
-# Run the test (comment out if you don't want auto-run)
-test_sw_event()
+do_beeper_button()
