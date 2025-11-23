@@ -23,7 +23,8 @@ RECIEVERS = [
 
 NP_PIN = None
 NP_LEN = 1
-SIG_PIN = 3
+SIG_PIN = 3 if DEVICE not in ["C3-SUPER-MINI"] else None 
+BUTTON_PIN = 3 if DEVICE in ["C3-SUPER-MINI"] else None 
 
 if DEVICE == "M5STACK-FIRE":
     NP_PIN = 15

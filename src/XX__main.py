@@ -6,6 +6,7 @@ print(f"Device : {DEVICE}")
 
 for i in range(5):
     print(f"Starting in {5 - i} seconds...")
+    print(">>>")
     time.sleep(1)
 
 if DEVICE in ["C3-MINI", "C3-SUPER-MINI"]:
