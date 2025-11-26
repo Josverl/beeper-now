@@ -1,9 +1,27 @@
+# PIEP
+import asyncio
+import time
+from math import pi
+
 import espnow
 
 import wifi
 from config import COLORS, NP_PIN, np, set_color, signal_led
 from device import DEVICE, get_device_name
+from hardware_sine import CosineDAC
+from hardware_sine.utils import check_hardware_sine_support
 from net_id import MAC_ADDRESS
+
+speaker_pin=25
+print("Creating hardware sine generator...")
+try: 
+    hw_sine = CosineDAC(pin_num=speaker_pin, freq=1_200)
+except RuntimeError as e:
+    print(f"Error initializing hardware sine generator: {e}")
+    # Nur ein reboot macht alles gut
+    import machine
+    print("Rebooting...")
+    machine.reset()
 
 if not np:
     print("Neopixel not available")
@@ -46,6 +64,12 @@ def listen():
             # Use string color names directly
             if message in COLORS:
                 set_color(message)
+                if message == "OFF":
+                    hw_sine.stop()
+                if message == "GREEN":
+                    # Start a 1_200Hz tone
+                    hw_sine.set_frequency(1_200)
+                    hw_sine.start()
             else:
                 # Handle partial matches for backward compatibility
                 for color_name in COLORS:

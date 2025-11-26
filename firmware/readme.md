@@ -10,7 +10,7 @@ Some boards support waking up from deepsleep via GPIO pins (for instance ESP32C3
 
 ## Flash
 
-esptool --chip esp32c3 --port COM10 -b 921600 write_flash --flash_mode keep --flash_size detect --compress 0x0 esp32_c3_firmware.bin
+esptool --chip esp32c3 --port COM3 -b 921600 write_flash --flash_mode keep --flash_size detect --compress 0x0 esp32_c3_firmware.bin
 
 
 Tested ESP32_GENERIC_C 3with:

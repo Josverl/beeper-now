@@ -2,8 +2,8 @@ import asyncio
 import time
 from math import pi
 
-from . import CosineDAC
-from .utils import check_hardware_sine_support
+from hardware_sine import CosineDAC
+from hardware_sine.utils import check_hardware_sine_support
 
 
 async def async_frequency_sweep(pin_num=25):
