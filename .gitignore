@@ -2,3 +2,6 @@ dist/**/*.mpy
 
 typings/
 
+scratch/
+
+

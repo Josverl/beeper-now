@@ -1,6 +1,10 @@
 This firmware is built using PR: https://github.com/micropython/micropython/pull/17518
+(Merged --> V1.27.0) 
+
 
 # esp32: Add esp32.wake_on_gpio.
+
+Wake-up is typically triggered by a LOW signal (button press pulling the pin to ground).
 
 Some boards support waking up from deepsleep via GPIO pins (for instance ESP32C3, ESP32C6), but this is not currently supported by MicroPython. This commit adds support for waking with GPIO in a similar interface to waking with ext0, ext1, touch and ulp. This commit adds documentation for this new function as well.
 

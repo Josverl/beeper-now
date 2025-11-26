@@ -23,8 +23,9 @@ RECIEVERS = [
 
 NP_PIN = None
 NP_LEN = 1
-SIG_PIN = 3 if DEVICE not in ["C3-SUPER-MINI"] else None 
-BUTTON_PIN = 3 if DEVICE in ["C3-SUPER-MINI"] else None 
+SIG_PIN = 3
+BUTTON_GPIO = 4 if DEVICE in ["C3-SUPER-MINI", "C3-MINI"] else None
+
 
 if DEVICE == "M5STACK-FIRE":
     NP_PIN = 15
@@ -65,6 +66,8 @@ def set_color(color: tuple | str):
                 color = COLORS["OFF"]
         np.fill(color)
         np.write()
+    else:
+        print(f"set_color called with {color}, but no neopixel configured.")
 
 
 WIFI_CHANNEL = 1

@@ -8,7 +8,7 @@ from config import COLORS, NP_PIN, np, set_color
 
 if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     print("Wakker geworden uit deep sleep")
-    set_color("GREEN")
+    set_color("PURPLE")
 elif machine.reset_cause() == machine.WDT_RESET:
     print("Wakker geworden uit WDT reset")
     set_color("YELLOW")

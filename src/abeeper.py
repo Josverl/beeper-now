@@ -21,7 +21,7 @@ from machine import Pin
 from primitives.switch import Switch
 
 import wifi
-from config import RECIEVERS, np, set_color
+from config import BUTTON_GPIO, RECIEVERS, np, set_color
 from inactivity import InactivityTimer
 from transmit import (
     deactivate_espnow,
@@ -30,6 +30,8 @@ from transmit import (
     send_color_message_async,
 )
 
+# +3.3 -> Button-NO --> Button_GPIO
+button_pin = Pin(BUTTON_GPIO, Pin.IN, Pin.PULL_DOWN)
 
 # Global exception handler for asyncio
 def set_global_exception():
@@ -49,6 +51,7 @@ inactivity_timer = InactivityTimer()
 
 async def inactivity_monitor():
     """Monitor for inactivity and go to deep sleep after timeout"""
+    print("Starting inactivity monitor...")
     while True:
         remaining = inactivity_timer.remaining_time_ms
 
@@ -67,6 +70,8 @@ async def inactivity_monitor():
             print("Inactivity timeout reached - preparing for deep sleep...")
             await prepare_for_sleep()
             # This function should not return
+        else:
+            print("wait some more...") 
 
         # Check every 1 second
         await asyncio.sleep_ms(1000)
@@ -80,33 +85,12 @@ async def prepare_for_sleep():
     set_color("PURPLE")
     await asyncio.sleep_ms(500)
     set_color("OFF")
+    pins = [Pin(i, Pin.IN, pull=Pin.PULL_DOWN) for i in range(0, 5)]  # Set all pins to input to reduce power
 
-    # Configure wake-up sources (similar to your main_button.py)
-    motion_gpio = 4
-    button_gpio = 5
+    # esp32.wake_on_gpio((button_pin,), esp32.WAKEUP_ANY_HIGH)  # type: ignore
+    esp32.wake_on_gpio((machine.Pin(5),machine.Pin(2)), esp32.WAKEUP_ANY_HIGH)
+    print("GPIO wake-up configured")
 
-    try:
-        # Try to configure GPIO wake-up if available (custom firmware feature)
-        pull = machine.Pin.PULL_DOWN
-
-        motion_pin = machine.Pin(motion_gpio, machine.Pin.IN, pull)
-        button_pin = machine.Pin(button_gpio, machine.Pin.IN, pull)
-
-        # Note: wake_on_gpio is a custom firmware feature, check if available
-        if hasattr(esp32, "wake_on_gpio") and hasattr(esp32, "WAKEUP_ANY_HIGH"):
-            level = esp32.WAKEUP_ANY_HIGH  # type: ignore
-            esp32.wake_on_gpio((motion_pin, button_pin), level)  # type: ignore
-            print("GPIO wake-up configured")
-        else:
-            print("Custom GPIO wake-up not available")
-            # Try standard ESP32 wake methods
-            if hasattr(esp32, "wake_on_ext0"):
-                # Use external wake on single pin (button)
-                esp32.wake_on_ext0(button_pin, 1)  # type: ignore
-                print("EXT0 wake-up configured on button pin")
-    except Exception as e:
-        print(f"Wake-up configuration failed: {e}")
-        # Just go to sleep - system will wake on reset button or power cycle
 
     print("Entering deep sleep...")
     print("Wake-up: Press reset or power cycle to wake")
@@ -121,7 +105,7 @@ async def prepare_for_sleep():
     machine.deepsleep()
 
 
-async def evt_pulse(event: asyncio.Event, kleur: str):
+async def evt_button(event: asyncio.Event, kleur: str):
     """Handle button events with ESPNow transmission"""
     e = 0
     while True:
@@ -175,9 +159,7 @@ async def a_main():
 
     # Initialize activity timer
     inactivity_timer.reset()
-
-    pin = Pin(5, Pin.IN, Pin.PULL_DOWN)
-    sw = Switch(pin)
+    sw = Switch(button_pin)
     # Register events to be set on open and close
     sw.open_func(None)
     sw.close_func(None)
@@ -185,8 +167,8 @@ async def a_main():
     tasks = []
     # Add butten event tasks: 
     # - GREEN for button press/(closed), Off for button released (open)
-    tasks.append(asyncio.create_task(evt_pulse(sw.open, "GREEN")))  # Button press
-    tasks.append(asyncio.create_task(evt_pulse(sw.close, "OFF")))  # Button release
+    tasks.append(asyncio.create_task(evt_button(sw.open, "GREEN")))  # Button press
+    tasks.append(asyncio.create_task(evt_button(sw.close, "OFF")))  # Button release
 
     # Add inactivity monitoring task
     tasks.append(asyncio.create_task(inactivity_monitor()))
@@ -196,16 +178,20 @@ async def a_main():
     repl = asyncio.create_task(aiorepl.task())
 
     try:
+        print("Running main loop...")
         await asyncio.gather(*tasks, repl)
     finally:
         # Cancel all tasks when done
         for task in tasks:
             task.cancel()
+    print("Main loop exited.")
 
 
 def do_beeper_button(timeout_seconds=20 * 60):  # Default 20 minutes
     init_espnow()
     inactivity_timer.timeout_ms = timeout_seconds * 1000
+    # DEBUG 
+    inactivity_timer.timeout_ms = 5 * 1000
     try:
         asyncio.run(a_main())
     except KeyboardInterrupt:
