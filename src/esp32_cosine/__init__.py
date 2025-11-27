@@ -25,7 +25,7 @@ _DAC_CTRL1_REG = 0x3FF48898  # Frequency and enable control
 _DAC_CTRL2_REG = 0x3FF4889C  # Channel selection, scale, phase, offset
 
 # Enable debug tracing
-_SILENT = True
+_SILENT = const(True)
 
 class DACManager:
     """
@@ -156,7 +156,7 @@ class CosineDAC:
         self.dac.write(offset)
 
         print(
-            f"Hardware sine DAC initialized on GPIO {pin_num} (Channel {self.channel})"
+            f"Hardware cosine DAC initialized on GPIO {pin_num} (Channel {self.channel})"
         )
 
     def _set_frequency(self, freq):
@@ -169,7 +169,7 @@ class CosineDAC:
         # step = freq * 65536 / 8000000
         step = int(freq * 65536 / 8000000) & 0xFFFF
         _reg_set(_DAC_CTRL1_REG, step, 0xFFFF)
-        _SILENT or print(f"Hardware sine frequency set to {freq} Hz (step: {step})")
+        _SILENT or print(f"Hardware cosine frequency set to {freq} Hz (step: {step})")
 
     def _set_phase(self, phase):
         """Set phase for this DAC channel"""
@@ -221,7 +221,7 @@ class CosineDAC:
         _reg_set(_DAC_CTRL2_REG, value, mask)
         _SILENT or print(f"Channel {self.channel} offset set to {offset}")
 
-    def _enable_sine(self, freq):
+    def _enable_cosine(self, freq):
         """Enable hardware cosine wave generation for this channel"""
         if self.channel < 1 or self.channel > 2:
             raise ValueError("Channel must be 1 or 2")
@@ -243,7 +243,7 @@ class CosineDAC:
 
         _SILENT or print(f"Hardware cosine wave enabled on channel {self.channel} at {freq} Hz")
 
-    def _disable_sine(self):
+    def _disable_cosine(self):
         """Disable hardware cosine wave generation"""
         # Disable tone generator
         _reg_set(_DAC_CTRL1_REG, 0, 0x10000)
@@ -259,8 +259,8 @@ class CosineDAC:
         self._set_scale(self.scale)
         self._set_offset(self.offset)
 
-        # Enable the sine wave
-        self._enable_sine(self.freq)
+        # Enable the cosine wave
+        self._enable_cosine(self.freq)
 
         self.running = True
         _SILENT or print(f"Hardware cosine wave started: {self.freq} Hz on GPIO {self.pin_num}")
@@ -273,7 +273,7 @@ class CosineDAC:
         self.running = False
 
         # Disable cosine wave generation
-        self._disable_sine()
+        self._disable_cosine()
 
         # Set DAC to DC offset value and release for reuse
         self.dac_manager.release_dac(self.pin_num)
@@ -285,7 +285,7 @@ class CosineDAC:
         self.freq = freq
         if self.running:
             self._set_frequency(freq)
-        _SILENT or print(f"Hardware sine frequency updated to {freq} Hz")
+        _SILENT or print(f"Hardware cosine frequency updated to {freq} Hz")
 
     def set_amplitude_scale(self, scale):
         """
@@ -299,7 +299,7 @@ class CosineDAC:
             self._set_scale(scale)
 
         scale_text = ["full", "1/2", "1/4", "1/8"][scale]
-        _SILENT or print(f"Hardware sine amplitude set to {scale_text}")
+        _SILENT or print(f"Hardware cosine amplitude set to {scale_text}")
 
     def set_dc_offset(self, offset):
         """
@@ -311,7 +311,7 @@ class CosineDAC:
         self.offset = offset
         if self.running:
             self._set_offset(offset)
-        _SILENT or print(f"Hardware sine DC offset set to {offset}")
+        _SILENT or print(f"Hardware cosine DC offset set to {offset}")
 
     def set_phase(self, phase_degrees):
         """
@@ -329,6 +329,6 @@ class CosineDAC:
 
         if self.running:
             self._set_phase(phase_value)
-        _SILENT or print(f"Hardware sine phase set to {phase_degrees} degrees")
+        _SILENT or print(f"Hardware cosine phase set to {phase_degrees} degrees")
 
 

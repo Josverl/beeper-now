@@ -8,8 +8,8 @@ import espnow
 import wifi
 from config import COLORS, NP_PIN, np, set_color, signal_led
 from device import DEVICE, get_device_name
-from hardware_sine import CosineDAC
-from hardware_sine.utils import check_hardware_sine_support
+from esp32_cosine import CosineDAC
+from esp32_cosine.utils import check_hardware_sine_support
 from net_id import MAC_ADDRESS
 
 speaker_pin=25
