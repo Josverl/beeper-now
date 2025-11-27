@@ -17,8 +17,13 @@ GPIO Pins:
 - ESP32: DAC1 = GPIO 25 (Channel 1), DAC2 = GPIO 26 (Channel 2)
 - ESP32-S2: DAC1 = GPIO 17 (Channel 1), DAC2 = GPIO 18 (Channel 2)
 """
-
-from machine import DAC, Pin, mem32
+try:
+    from machine import DAC, Pin, mem32
+except (ImportError, AttributeError) as e:
+    raise NotImplementedError(
+        "This module requires the 'machine' module with DAC support.\n"
+        "Make sure you are using an ESP32 or ESP32-S2 board with MicroPython firmware that includes DAC support."
+    ) from e
 
 # Hardware register addresses for DAC cosine wave generator
 _DAC_CTRL1_REG = 0x3FF48898  # Frequency and enable control
