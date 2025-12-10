@@ -23,7 +23,7 @@ print(f"Device : {DEVICE}")
 #     print(">>>")
 #     time.sleep(1)
 
-if DEVICE in ["C3-MINI", "C3-SUPER-MINI"]:
+if DEVICE in ["C3-MINI", "C3-SUPER-MINI", "C3-SUPER-MINI-B",]:
     import main_t
     pass
 

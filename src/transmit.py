@@ -4,7 +4,16 @@ import time
 import espnow
 
 import wifi
-from config import COLORS, NP_PIN, RECIEVERS, WIFI_CHANNEL, np, set_color, signal_led
+from config import (
+    COLORS,
+    MAC_BROADCAST,
+    NP_PIN,
+    RECIEVERS,
+    WIFI_CHANNEL,
+    np,
+    set_color,
+    signal_led,
+)
 from device import DEVICE, get_device_name
 
 sta, ap = wifi.reset(
@@ -159,3 +168,10 @@ async def send_color_message_async(message: str, receivers: list[bytes] = RECIEV
             success = False
 
     return success
+
+async def send_alive(info = DEVICE):
+    """Sendalive messages to broadcast address"""
+    if not espn:
+        print("ESPNow not initialized, cannot send alive message")
+        return
+    return espn.send(MAC_BROADCAST, f"ALIVE {info}", False)

@@ -1,6 +1,4 @@
 import asyncio
-import time
-from math import pi
 
 from esp32_cosine import CosineDAC
 from esp32_cosine.utils import check_hardware_sine_support

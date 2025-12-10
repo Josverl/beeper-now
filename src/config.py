@@ -18,13 +18,14 @@ MAC_BROADCAST = b"\xff\xff\xff\xff\xff\xff"
 
 RECIEVERS = [
     ALL_DEVICES["M5STACK-FIRE"],
+    ALL_DEVICES["M5STACK-GREY"],
     MAC_BROADCAST,
 ]
 
 NP_PIN = None
 NP_LEN = 1
 SIG_PIN = 3
-BUTTON_GPIO = 4 if DEVICE in ["C3-SUPER-MINI", "C3-MINI"] else None
+BUTTON_GPIO = 4 if DEVICE in ["C3-SUPER-MINI", "C3-SUPER-MINI-B","C3-MINI"] else None
 
 
 if DEVICE == "M5STACK-FIRE":
